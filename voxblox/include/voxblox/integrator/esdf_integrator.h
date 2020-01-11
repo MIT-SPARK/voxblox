@@ -121,7 +121,7 @@ class EsdfIntegrator {
    * neighbors and distance to neighbors. The update is done once the open
    * set is empty.
    */
-  void processOpenSet();
+  virtual void processOpenSet();
 
   /**
    * For new voxels, etc. -- update its value from its neighbors. Sort of the

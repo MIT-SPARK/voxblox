@@ -10,14 +10,24 @@ add_definitions(-std=c++11 -Wall -Wextra)
 ############
 # PROTOBUF #
 ############
-# General idea: first check if we have protobuf catkin, then use that.
-# Otherwise use system protobuf.
-set(PROTO_DEFNS proto/voxblox/Block.proto
-                proto/voxblox/Layer.proto)
-set(BASE_PATH "proto")
-set(PROTOBUF_COMPILE_PYTHON true)
 
-PROTOBUF_CATKIN_GENERATE_CPP2(${BASE_PATH} PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+    proto/voxblox/Block.proto
+    proto/voxblox/Layer.proto)
+
+set(BLOCK_IN_HEADER "${CMAKE_CURRENT_BINARY_DIR}/Block.pb.h")
+set(BLOCK_OUT_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/voxblox/Block.pb.h")
+set(LAYER_IN_HEADER "${CMAKE_CURRENT_BINARY_DIR}/Layer.pb.h")
+set(LAYER_OUT_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/voxblox/Layer.pb.h")
+add_custom_command(OUTPUT ${BLOCK_OUT_HEADER} ${LAYER_OUT_HEADER}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLOCK_IN_HEADER} ${BLOCK_OUT_HEADER}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LAYER_IN_HEADER} ${LAYER_OUT_HEADER}
+    DEPENDS ${BLOCK_IN_HEADER} ${LAYER_IN_HEADER}
+)
+set(DEVEL_PROTO_HEADERS
+    ${BLOCK_OUT_HEADER}
+    ${LAYER_OUT_HEADER})
 
 ####################
 # SET SOURCE FILES #
@@ -51,13 +61,13 @@ set("${PROJECT_NAME}_SRCS"
 # LIBRARIES #
 #############
 cs_add_library(${PROJECT_NAME}_proto
-  ${PROTO_SRCS}
+    ${PROTO_SRCS} ${DEVEL_PROTO_HEADERS}
 )
 
 cs_add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_SRCS}
 )
-target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_proto)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}_proto ${Protobuf_LIBRARIES})
 
 ############
 # BINARIES #
@@ -139,4 +149,4 @@ target_link_libraries(test_clear_spheres ${PROJECT_NAME})
 # EXPORT #
 ##########
 cs_install()
-cs_export(INCLUDE_DIRS ${CATKIN_DEVEL_PREFIX}/include)
+cs_export()

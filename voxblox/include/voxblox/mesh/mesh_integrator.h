@@ -130,7 +130,7 @@ class MeshIntegrator {
   }
 
   /// Generates mesh from the tsdf layer.
-  void generateMesh(bool only_mesh_updated_blocks, bool clear_updated_flag) {
+  virtual void generateMesh(bool only_mesh_updated_blocks, bool clear_updated_flag) {
     CHECK(!clear_updated_flag || (sdf_layer_mutable_ != nullptr))
         << "If you would like to modify the updated flag in the blocks, please "
         << "use the constructor that provides a non-const link to the sdf "
@@ -260,9 +260,11 @@ class MeshIntegrator {
     mesh->updated = true;
   }
 
-  void extractMeshInsideBlock(const Block<VoxelType>& block,
-                              const VoxelIndex& index, const Point& coords,
-                              VertexIndex* next_mesh_index, Mesh* mesh) {
+  virtual void extractMeshInsideBlock(const Block<VoxelType>& block,
+                                      const VoxelIndex& index,
+                                      const Point& coords,
+                                      VertexIndex* next_mesh_index,
+                                      Mesh* mesh) {
     DCHECK(next_mesh_index != nullptr);
     DCHECK(mesh != nullptr);
 
@@ -289,9 +291,9 @@ class MeshIntegrator {
     }
   }
 
-  void extractMeshOnBorder(const Block<VoxelType>& block,
-                           const VoxelIndex& index, const Point& coords,
-                           VertexIndex* next_mesh_index, Mesh* mesh) {
+  virtual void extractMeshOnBorder(const Block<VoxelType>& block,
+                                   const VoxelIndex& index, const Point& coords,
+                                   VertexIndex* next_mesh_index, Mesh* mesh) {
     DCHECK(mesh != nullptr);
 
     Eigen::Matrix<FloatingPoint, 3, 8> cube_coord_offsets =

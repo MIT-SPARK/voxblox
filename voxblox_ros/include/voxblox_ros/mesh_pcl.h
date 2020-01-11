@@ -34,6 +34,7 @@
 
 #include <voxblox/core/common.h>
 #include <voxblox/mesh/mesh_layer.h>
+#include <voxblox/io/mesh_ply.h>
 
 namespace voxblox {
 
