@@ -151,11 +151,12 @@ inline std_msgs::ColorRGBA getVertexColor(const Mesh::ConstPtr& mesh,
 }
 
 inline void generateVoxbloxMeshMsg(MeshLayer* mesh_layer, ColorMode color_mode,
-                                   voxblox_msgs::Mesh* mesh_msg) {
+                                   voxblox_msgs::Mesh* mesh_msg,
+                                   const ros::Time& stamp) {
   CHECK_NOTNULL(mesh_msg);
   CHECK_NOTNULL(mesh_layer);
 
-  mesh_msg->header.stamp = ros::Time::now();
+  mesh_msg->header.stamp = stamp;
 
   BlockIndexList mesh_indices;
   mesh_layer->getAllUpdatedMeshes(&mesh_indices);
@@ -227,6 +228,11 @@ inline void generateVoxbloxMeshMsg(MeshLayer* mesh_layer, ColorMode color_mode,
 
     mesh->updated = false;
   }
+}
+
+inline void generateVoxbloxMeshMsg(MeshLayer* mesh_layer, ColorMode color_mode,
+                                   voxblox_msgs::Mesh* mesh_msg) {
+  generateVoxbloxMeshMsg(mesh_layer, color_mode, mesh_msg, ros::Time::now());
 }
 
 inline void generateVoxbloxMeshMsg(const MeshLayer::Ptr& mesh_layer,
