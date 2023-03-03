@@ -90,6 +90,8 @@ class TsdfIntegratorBase {
 
   TsdfIntegratorBase(const Config& config, Layer<TsdfVoxel>* layer);
 
+  virtual ~TsdfIntegratorBase() = default;
+
   /**
    * Integrates the given point infomation into the TSDF.
    * NOT thread safe.
