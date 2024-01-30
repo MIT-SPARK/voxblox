@@ -51,10 +51,6 @@ class EsdfMap {
   virtual ~EsdfMap() {}
 
   Layer<EsdfVoxel>* getEsdfLayerPtr() { return esdf_layer_.get(); }
-  const Layer<EsdfVoxel>* getEsdfLayerConstPtr() const {
-    return esdf_layer_.get();
-  }
-
   const Layer<EsdfVoxel>& getEsdfLayer() const { return *esdf_layer_; }
 
   FloatingPoint block_size() const { return block_size_; }

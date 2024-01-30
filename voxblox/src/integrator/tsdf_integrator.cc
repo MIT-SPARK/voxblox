@@ -1,4 +1,5 @@
 #include "voxblox/integrator/tsdf_integrator.h"
+#include "voxblox/integrator/projective_tsdf_integrator.h"
 
 #include <iostream>
 #include <list>
@@ -36,6 +37,11 @@ TsdfIntegratorBase::Ptr TsdfIntegratorFactory::create(
       break;
     case TsdfIntegratorType::kFast:
       return TsdfIntegratorBase::Ptr(new FastTsdfIntegrator(config, layer));
+      break;
+    case TsdfIntegratorType::kProjective:
+      return TsdfIntegratorBase::Ptr(
+          new ProjectiveTsdfIntegrator<InterpolationScheme::kAdaptive>(config,
+                                                                       layer));
       break;
     default:
       LOG(FATAL) << "Unknown TSDF integrator type: "
@@ -158,6 +164,11 @@ void TsdfIntegratorBase::updateTsdfVoxel(const Point& origin,
       getCenterPointFromGridIndex(global_voxel_idx, voxel_size_);
 
   const float sdf = computeDistance(origin, point_G, voxel_center);
+  
+  if (tsdf_voxel->dynamic == true){
+  	tsdf_voxel->distance = sdf;
+  	tsdf_voxel->weight = 1;
+  }else{
 
   float updated_weight = weight;
   // Compute updated weight in case we use weight dropoff. It's easier here
@@ -206,6 +217,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(const Point& origin,
       (new_sdf > 0.0) ? std::min(config_.default_truncation_distance, new_sdf)
                       : std::max(-config_.default_truncation_distance, new_sdf);
   tsdf_voxel->weight = std::min(config_.max_weight, new_weight);
+  }
 }
 
 // Thread safe.

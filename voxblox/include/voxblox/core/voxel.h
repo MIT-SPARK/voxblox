@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "voxblox/core/color.h"
 #include "voxblox/core/common.h"
@@ -13,6 +14,29 @@ struct TsdfVoxel {
   float distance = 0.0f;
   float weight = 0.0f;
   Color color;
+
+  /**
+   * Whether the voxel was copied from the TSDF (false) or created from a pose
+   * or some other source (true). This member is not serialized!!!
+   */
+
+  // If this voxel is considered ever-free for dynamic object detection.
+  bool ever_free = false;
+
+  // Last frame number a lidar point fell into this voxel.
+  int last_lidar_occupied = -1;
+
+  // Last frame number this voxel was occupied by the TSDF or a lidar point.
+  int last_occupied = 0;
+
+  // Number of consecutive frames this voxel contained lidar points.
+  int occ_counter = 0;
+
+  // Set to true if the voxel has already been clustered this frame.
+  bool clustering_processed = false;
+
+  // Marks this voxel as dynamic to adjust the next TSDF update.
+  bool dynamic = false;
 };
 
 struct EsdfVoxel {

@@ -111,7 +111,7 @@ void Block<OccupancyVoxel>::deserializeFromIntegers(
 template <>
 void Block<EsdfVoxel>::deserializeFromIntegers(
     const std::vector<uint32_t>& data) {
-  constexpr size_t kNumDataPacketsPerVoxel = 2u;
+  constexpr size_t kNumDataPacketsPerVoxel = 3u;
   const size_t num_data_packets = data.size();
   CHECK_EQ(num_voxels_ * kNumDataPacketsPerVoxel, num_data_packets);
   for (size_t voxel_idx = 0u, data_idx = 0u;
@@ -225,9 +225,7 @@ void Block<EsdfVoxel>::serializeToIntegers(std::vector<uint32_t>* data) const {
         static_cast<uint8_t>(voxel.hallucinated ? 0b00000010 : 0b00000000);
     flag_byte |= static_cast<uint8_t>(voxel.in_queue ? 0b00000100 : 0b00000000);
     flag_byte |= static_cast<uint8_t>(voxel.fixed ? 0b00001000 : 0b00000000);
-
     bytes_2 |= static_cast<uint32_t>(flag_byte) & 0x000000FF;
-
     data->push_back(bytes_2);
   }
   CHECK_EQ(num_voxels_ * kNumDataPacketsPerVoxel, data->size());

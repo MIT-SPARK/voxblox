@@ -191,7 +191,7 @@ bool EsdfServer::loadMap(const std::string& file_path) {
 
 void EsdfServer::updateEsdf() {
   if (tsdf_map_->getTsdfLayer().getNumberOfAllocatedBlocks() > 0) {
-    const bool clear_updated_flag_esdf = true;
+    const bool clear_updated_flag_esdf = false;
     esdf_integrator_->updateFromTsdfLayer(clear_updated_flag_esdf);
   }
 }
@@ -224,10 +224,10 @@ void EsdfServer::newPoseCallback(const Transformation& T_G_C) {
     esdf_integrator_->addNewRobotPosition(T_G_C.getPosition());
   }
 
-  timing::Timer block_remove_timer("remove_distant_blocks");
+  //timing::Timer block_remove_timer("remove_distant_blocks");
   esdf_map_->getEsdfLayerPtr()->removeDistantBlocks(
       T_G_C.getPosition(), max_block_distance_from_body_);
-  block_remove_timer.Stop();
+  //block_remove_timer.Stop();
 }
 
 void EsdfServer::esdfMapCallback(const voxblox_msgs::Layer& layer_msg) {
@@ -240,9 +240,7 @@ void EsdfServer::esdfMapCallback(const voxblox_msgs::Layer& layer_msg) {
     ROS_ERROR_THROTTLE(10, "Got an invalid ESDF map message!");
   } else {
     ROS_INFO_ONCE("Got an ESDF map from ROS topic!");
-    if (publish_pointclouds_) {
-      publishPointclouds();
-    }
+    publishPointclouds();
   }
 }
 

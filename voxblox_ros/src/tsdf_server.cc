@@ -2,6 +2,7 @@
 
 #include <minkindr_conversions/kindr_msg.h>
 #include <minkindr_conversions/kindr_tf.h>
+#include <voxblox/integrator/projective_tsdf_integrator.h>
 
 #include "voxblox_ros/conversions.h"
 #include "voxblox_ros/ros_params.h"
@@ -91,19 +92,8 @@ TsdfServer::TsdfServer(const ros::NodeHandle& nh,
 
   std::string method("merged");
   nh_private_.param("method", method, method);
-  if (method.compare("simple") == 0) {
-    tsdf_integrator_.reset(new SimpleTsdfIntegrator(
-        integrator_config, tsdf_map_->getTsdfLayerPtr()));
-  } else if (method.compare("merged") == 0) {
-    tsdf_integrator_.reset(new MergedTsdfIntegrator(
-        integrator_config, tsdf_map_->getTsdfLayerPtr()));
-  } else if (method.compare("fast") == 0) {
-    tsdf_integrator_.reset(new FastTsdfIntegrator(
-        integrator_config, tsdf_map_->getTsdfLayerPtr()));
-  } else {
-    tsdf_integrator_.reset(new SimpleTsdfIntegrator(
-        integrator_config, tsdf_map_->getTsdfLayerPtr()));
-  }
+  tsdf_integrator_ = TsdfIntegratorFactory::create(
+      method, integrator_config, tsdf_map_->getTsdfLayerPtr());
 
   mesh_layer_.reset(new MeshLayer(tsdf_map_->block_size()));
 
@@ -229,7 +219,7 @@ void TsdfServer::processPointCloudMessageAndInsert(
 
   Pointcloud points_C;
   Colors colors;
-  timing::Timer ptcloud_timer("ptcloud_preprocess");
+  //timing::Timer ptcloud_timer("ptcloud_preprocess");
 
   // Convert differently depending on RGB or I type.
   if (color_pointcloud) {
@@ -248,7 +238,7 @@ void TsdfServer::processPointCloudMessageAndInsert(
     pcl::fromROSMsg(*pointcloud_msg, pointcloud_pcl);
     convertPointcloud(pointcloud_pcl, color_map_, &points_C, &colors);
   }
-  ptcloud_timer.Stop();
+  //ptcloud_timer.Stop();
 
   Transformation T_G_C_refined = T_G_C;
   if (enable_icp_) {
@@ -311,12 +301,12 @@ void TsdfServer::processPointCloudMessageAndInsert(
              tsdf_map_->getTsdfLayer().getNumberOfAllocatedBlocks());
   }
 
-  timing::Timer block_remove_timer("remove_distant_blocks");
+  //timing::Timer block_remove_timer("remove_distant_blocks");
   tsdf_map_->getTsdfLayerPtr()->removeDistantBlocks(
       T_G_C.getPosition(), max_block_distance_from_body_);
   mesh_layer_->clearDistantMesh(T_G_C.getPosition(),
                                 max_block_distance_from_body_);
-  block_remove_timer.Stop();
+  //block_remove_timer.Stop();
 
   // Callback for inheriting classes.
   newPoseCallback(T_G_C);

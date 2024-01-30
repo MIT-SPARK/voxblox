@@ -277,6 +277,14 @@ void EsdfIntegrator::updateFromTsdfBlocks(const BlockIndexList& tsdf_blocks,
             num_raise++;
           }
         }
+        else {
+            if (tsdf_voxel.distance > esdf_voxel.distance){
+                esdf_voxel.distance =
+                        signum(tsdf_voxel.distance) * config_.default_distance_m;
+//                esdf_voxel.distance = tsdf_voxel.distance;
+            }
+
+        }
         // Otherwise we just don't care. Not fixed voxels that match the right
         // sign can be whatever value that they want to be.
       }
@@ -505,7 +513,7 @@ bool EsdfIntegrator::updateVoxelFromNeighbors(const GlobalIndex& global_index) {
   // Go through the neighbors and see if we can update any of them.
   for (unsigned int idx = 0u; idx < neighbor_indices.cols(); ++idx) {
     const GlobalIndex& neighbor_index = neighbor_indices.col(idx);
-    const FloatingPoint distance = Neighborhood<>::kDistances[idx];
+    const FloatingPoint distance = Neighborhood<>::kDistances[idx] * voxel_size_;
 
     EsdfVoxel* neighbor_voxel =
         esdf_layer_->getVoxelPtrByGlobalIndex(neighbor_index);
