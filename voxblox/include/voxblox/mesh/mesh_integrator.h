@@ -377,6 +377,9 @@ class MeshIntegrator {
       } else {
         const typename Block<VoxelType>::ConstPtr neighbor_block =
             sdf_layer_const_->getBlockPtrByCoordinates(vertex);
+        if (!neighbor_block) {
+          continue;
+        }
         const VoxelType& voxel = neighbor_block->getVoxelByCoordinates(vertex);
         utils::getColorIfValid(voxel, config_.min_weight, &(mesh->colors[i]));
       }
